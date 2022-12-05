@@ -5,12 +5,11 @@ on:
     branches:
       - main
 jobs:
-  creat-issue:
+  create-issue:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
       - name: Run create issue script
-        run: | 
-          chmod +x ./.github/scripts/create-issue.sh
-          ./.github/scripts/create-issue.sh
-        shell: bash
+        run: |
+          gh issue create --title "Test Issue" --body "Testing if I can create issues from workflow" --repo $GITHUB_REPOSITORY
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
