@@ -9,4 +9,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: ./scripts/create-issue.sh
+      - name: Run create issue script
+        run: | 
+          chmod +x ./.github/scripts/create-issue.sh
+          ./.github/scripts/create-issue.sh
+        shell: bash
