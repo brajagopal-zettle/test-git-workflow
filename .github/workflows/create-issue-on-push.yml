@@ -1,0 +1,12 @@
+name: create-issue-on-push
+run-name: Create Issue on push
+on:
+  push:
+    branches:
+      - main
+jobs:
+  creat-issue:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: ./scripts/create-issue.sh
