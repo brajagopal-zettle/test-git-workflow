@@ -10,6 +10,8 @@ jobs:
     steps:
       - name: Run create issue script
         run: |
-          gh issue create --title "Test Issue" --body "Testing if I can create issues from workflow" --repo $GITHUB_REPOSITORY
+          chmod +x ./.github/scripts/create-issue.sh
+          ./.github/scripts/create-issue.sh
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PROJECT_REPONAME: ${{ github.event.repository.name }}
