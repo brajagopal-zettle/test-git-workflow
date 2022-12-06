@@ -31,9 +31,12 @@ getLatest() {
 # the current going-to-be deploy SHA.
 # -----------------------------------
 getChangeLogSinceLatestRelease() {
-  latest_release_hash=$(gh api -H "Accept: application/vnd.github+json" /repos/brajagopal-zettle/"$PROJECT_REPONAME"/releases | jq -r '.target_commitish')
+  latest_release_branch= $(gh api -H "Accept: application/vnd.github+json" /repos/brajagopal-zettle/"$PROJECT_REPONAME"/releases/latest | jq -r '.target_commitish')
+  latest_release_tag= $(gh api -H "Accept: application/vnd.github+json" /repos/brajagopal-zettle/"$PROJECT_REPONAME"/releases | jq -r '.tag_name')
 
-  if [ -z "$latest_release_hash" ] || [ "$latest_release_hash" = "null" ]; then
+  latest_release_hash= $(gh api -H "Accept: application/vnd.github+json" /repos/brajagopal-zettle/"$PROJECT_REPONAME"/git/ref/tags/"$latest_release_tag" | jq -r '.object.sha')
+
+  if [ -z "$latest_release_branch" ] || [ "$latest_release_branch" = "null" ]; then
     # First release, empty changelog
     echo ""
   else
@@ -42,7 +45,7 @@ getChangeLogSinceLatestRelease() {
                 --no-merges \
                 --author-date-order \
                 --date=format:'%Y-%m-%d:%H:%M:%S' \
-                "$latest_release_hash" | \
+                "$latest_release_branch"..."$latest_release_hash" | \
                 sort -k2,1 --stable)
     echo "$changelog"
   fi
@@ -76,18 +79,19 @@ createIssue() {
     fi
 
     # Get the current draft release tag and delete them all.
-    current_issue=$(gh api -H "Accept: application/vnd.github+json" /repos/brajagopal-zettle/"$PROJECT_REPONAME"/issues | jq -r "[ .[] | select( .name | contains(\"$LAST_ISSUE\")) | .[].tag_name")
+    current_issue=$(gh api -H "Accept: application/vnd.github+json" /repos/brajagopal-zettle/test-git-workflow/issues | jq -r "[ .[] | select( .state | contains(\"open\")) | select( .title | contains(\"$LAST_ISSUE\"))] | .[].number")
 
     echo "$current_issue"
     # Delete all the draft releases
-    # if [[ -n $current_issue ]]; then
-    #    printf '%s\n' "$current_issue" |
-    #    while IFS= read -r tag; do
-    #        echo "Deleting draft release with tag=$tag"
-    #        gh release delete -y "$tag"
-    #    done
-    #fi
+    if [[ -n $current_issue ]]; then
+       printf '%s\n' "$current_issue" |
+        for issue in $current_issue
+          do
+            echo "Closing current issue=$issue"
+            gh issue close "$issue"
+        done
 
+    fi
 
     issue_body=$(getIssueBody)
     gh issue create --title "$LAST_ISSUE v$(date +%Y%m%d%H%M)" \
