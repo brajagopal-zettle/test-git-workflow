@@ -32,7 +32,7 @@ getLatest() {
 # -----------------------------------
 getChangeLogSinceLatestRelease() {
   latest_release_branch= $(gh api -H "Accept: application/vnd.github+json" /repos/brajagopal-zettle/"$PROJECT_REPONAME"/releases/latest | jq -r '.target_commitish')
-  latest_release_tag= $(gh api -H "Accept: application/vnd.github+json" /repos/brajagopal-zettle/"$PROJECT_REPONAME"/releases | jq -r '.tag_name')
+  latest_release_tag= $(gh api -H "Accept: application/vnd.github+json" /repos/brajagopal-zettle/"$PROJECT_REPONAME"/releases/latest | jq -r '.tag_name')
 
   latest_release_hash= $(gh api -H "Accept: application/vnd.github+json" /repos/brajagopal-zettle/"$PROJECT_REPONAME"/git/ref/tags/"$latest_release_tag" | jq -r '.object.sha')
 
@@ -88,7 +88,7 @@ createIssue() {
         for issue in $current_issue
           do
             echo "Closing current issue=$issue"
-            gh issue close "$issue"
+            gh issue delete "$issue"
         done
 
     fi
