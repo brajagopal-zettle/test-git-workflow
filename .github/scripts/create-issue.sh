@@ -4,6 +4,7 @@ export MAIN_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/re
 export RELEASE_TAG_PREFIX="release"
 export RELEASE_TITLE_PREFIX="[deploy] Release"
 export LAST_ISSUE="[Release]"
+export CLOSE_ISSUE_COMMENT="github-action bot is creating new one."
 
 # Template for the body of the Issue
 getIssueBody() {
@@ -88,7 +89,7 @@ createIssue() {
         for issue in $current_issue
           do
             echo "Closing current issue=$issue"
-            gh issue delete "$issue"
+            gh issue close "$issue" -c "$CLOSE_ISSUE_COMMENT"
         done
 
     fi
