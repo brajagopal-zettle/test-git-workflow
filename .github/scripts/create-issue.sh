@@ -4,7 +4,7 @@ export MAIN_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/re
 export RELEASE_TAG_PREFIX="release"
 export RELEASE_TITLE_PREFIX="[deploy] Release"
 export LAST_ISSUE="[Release]"
-export CLOSE_ISSUE_COMMENT="github-action bot is creating new one."
+export CLOSE_ISSUE_COMMENT="I'm closing this issue to create a new one."
 
 # Template for the body of the Issue
 getIssueBody() {
@@ -34,8 +34,9 @@ getLatest() {
 getChangeLogSinceLatestRelease() {
   latest_release_branch= $(gh api -H "Accept: application/vnd.github+json" /repos/brajagopal-zettle/"$PROJECT_REPONAME"/releases/latest | jq -r '.target_commitish')
   latest_release_tag= $(gh api -H "Accept: application/vnd.github+json" /repos/brajagopal-zettle/"$PROJECT_REPONAME"/releases/latest | jq -r '.tag_name')
-
-  latest_release_hash= $(gh api -H "Accept: application/vnd.github+json" /repos/brajagopal-zettle/"$PROJECT_REPONAME"/git/ref/tags/"$latest_release_tag" | jq -r '.object.sha')
+  echo "$latest_release_tag"
+  echo "$latest_release_branch"
+  latest_release_hash= $(gh api -H "Accept: application/vnd.github+json" /repos/brajagopal-zettle/"$PROJECT_REPONAME"/git/ref/tags/"$RELEASE_TAG" | jq -r '.object.sha')
 
   if [ -z "$latest_release_branch" ] || [ "$latest_release_branch" = "null" ]; then
     # First release, empty changelog
