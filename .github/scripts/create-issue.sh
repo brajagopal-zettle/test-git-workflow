@@ -12,7 +12,9 @@ getIssueBody() {
 This is a production release.
 <details>
 <summary>CHANGELOG $changelog_summary_title</summary>
+
 $changelog_recent
+
 </details>
 EOM
 )
@@ -32,11 +34,10 @@ getLatest() {
 # the current going-to-be deploy SHA.
 # -----------------------------------
 getChangeLogSinceLatestRelease() {
-  latest_release_branch= $(gh api -H "Accept: application/vnd.github+json" /repos/brajagopal-zettle/"$PROJECT_REPONAME"/releases/latest | jq -r '.target_commitish')
-  latest_release_tag= $(gh api -H "Accept: application/vnd.github+json" /repos/brajagopal-zettle/"$PROJECT_REPONAME"/releases/latest | jq -r '.tag_name')
-  echo "$latest_release_tag"
-  echo "$latest_release_branch"
-  latest_release_hash= $(gh api -H "Accept: application/vnd.github+json" /repos/brajagopal-zettle/"$PROJECT_REPONAME"/git/ref/tags/"$RELEASE_TAG" | jq -r '.object.sha')
+  latest_release_branch=$(gh api repos/brajagopal-zettle/"$PROJECT_REPONAME"/releases/latest | jq -r '.target_commitish')
+
+  latest_release_tag=$(gh api -H "Accept: application/vnd.github+json" /repos/brajagopal-zettle/"$PROJECT_REPONAME"/releases/latest | jq -r '.tag_name')
+  last_release_hash=$(gh api -H "Accept: application/vnd.github+json" /repos/brajagopal-zettle/"$PROJECT_REPONAME"/git/ref/tags/"$latest_release_tag" | jq -r '.object.sha')
 
   if [ -z "$latest_release_branch" ] || [ "$latest_release_branch" = "null" ]; then
     # First release, empty changelog
@@ -47,7 +48,7 @@ getChangeLogSinceLatestRelease() {
                 --no-merges \
                 --author-date-order \
                 --date=format:'%Y-%m-%d:%H:%M:%S' \
-                "$latest_release_branch"..."$latest_release_hash" | \
+                "$latest_release_branch"..."$last_release_hash" | \
                 sort -k2,1 --stable)
     echo "$changelog"
   fi
