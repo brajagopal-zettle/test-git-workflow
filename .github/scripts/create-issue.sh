@@ -48,7 +48,7 @@ getChangeLogSinceLatestRelease() {
                 --no-merges \
                 --author-date-order \
                 --date=format:'%Y-%m-%d:%H:%M:%S' \
-                "$latest_release_branch"..."$last_release_hash" | \
+                "$(git rev-parse HEAD)"..."$last_release_hash" | \
                 sort -k2,1 --stable)
     echo "$changelog"
   fi
