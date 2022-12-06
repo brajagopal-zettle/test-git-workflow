@@ -5,6 +5,20 @@ export RELEASE_TAG_PREFIX="release"
 export RELEASE_TITLE_PREFIX="[deploy] Release"
 export LAST_ISSUE="[Release]"
 
+# Template for the body of the Issue
+getIssueBody() {
+    issue_body=$(cat <<-EOM
+This is a production release.
+<details>
+<summary>CHANGELOG $changelog_summary_title</summary>
+$changelog_recent
+</details>
+EOM
+)
+
+    echo "$issue_body"
+}
+
 # Get the latest from default branch
 # ----------------------------------
 getLatest() {
@@ -64,20 +78,20 @@ createIssue() {
     # Get the current draft release tag and delete them all.
     current_issue=$(gh api -H "Accept: application/vnd.github+json" /repos/brajagopal-zettle/"$PROJECT_REPONAME"/issues | jq -r "[ .[] | select( .name | contains(\"$LAST_ISSUE\")) | .[].tag_name")
 
+    echo "$current_issue"
     # Delete all the draft releases
-    if [[ -n $current_issue ]]; then
-        printf '%s\n' "$current_issue" |
-        while IFS= read -r tag; do
-            echo "Deleting draft release with tag=$tag"
-            gh release delete -y "$tag"
-        done
-    fi
+    # if [[ -n $current_issue ]]; then
+    #    printf '%s\n' "$current_issue" |
+    #    while IFS= read -r tag; do
+    #        echo "Deleting draft release with tag=$tag"
+    #        gh release delete -y "$tag"
+    #    done
+    #fi
 
 
-    release_body=$(getReleaseBody)
+    issue_body=$(getIssueBody)
     gh issue create --title "$LAST_ISSUE v$(date +%Y%m%d%H%M)" \
-                    --body "$release_body"
-                    --repo $PROJECT_REPONAME
+                    --body "$issue_body"
 }
 
 
