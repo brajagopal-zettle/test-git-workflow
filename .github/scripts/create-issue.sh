@@ -17,7 +17,7 @@ getLatest() {
 # the current going-to-be deploy SHA.
 # -----------------------------------
 getChangeLogSinceLatestRelease() {
-  latest_release_hash=$(gh api /repos/brajagopal-zettle/"$PROJECT_REPONAME"/releases/ | jq -r '.target_commitish')
+  latest_release_hash=$(gh api -H "Accept: application/vnd.github+json" /repos/brajagopal-zettle/"$PROJECT_REPONAME"/releases | jq -r '.target_commitish')
 
   if [ -z "$latest_release_hash" ] || [ "$latest_release_hash" = "null" ]; then
     # First release, empty changelog
@@ -34,12 +34,12 @@ getChangeLogSinceLatestRelease() {
   fi
 }
 
-# The createDraftRelease will add content to the Issue explain what the issue
+# The createIssue will add content to the Issue explain what the issue
 # is about. It will add the changelog and link it to the git SHA.
 # If an issue with open already exists, it will delete it
 # and create a new one.
 # ------------------------------------------------------------------------------
-createDraftRelease() {
+createIssue() {
     echo "Creating Issue."
     echo "-----------------------"
     changelog=$1
@@ -62,7 +62,7 @@ createDraftRelease() {
     fi
 
     # Get the current draft release tag and delete them all.
-    current_issue=$(gh api repos/brajagopal-zettle/"$PROJECT_REPONAME"/issues | jq -r "[ .[] | select( .name | contains(\"$LAST_ISSUE\")) | .[].tag_name")
+    current_issue=$(gh api -H "Accept: application/vnd.github+json" /repos/brajagopal-zettle/"$PROJECT_REPONAME"/issues | jq -r "[ .[] | select( .name | contains(\"$LAST_ISSUE\")) | .[].tag_name")
 
     # Delete all the draft releases
     if [[ -n $current_issue ]]; then
