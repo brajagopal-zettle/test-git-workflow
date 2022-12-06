@@ -17,7 +17,7 @@ getLatest() {
 # the current going-to-be deploy SHA.
 # -----------------------------------
 getChangeLogSinceLatestRelease() {
-  latest_release_hash=$(gh api repos/iZettle/"$PROJECT_REPONAME"/releases/latest | jq -r '.target_commitish')
+  latest_release_hash=$(gh api /repos/brajagopal-zettle/"$PROJECT_REPONAME"/releases/ | jq -r '.target_commitish')
 
   if [ -z "$latest_release_hash" ] || [ "$latest_release_hash" = "null" ]; then
     # First release, empty changelog
@@ -62,7 +62,7 @@ createDraftRelease() {
     fi
 
     # Get the current draft release tag and delete them all.
-    current_issue=$(gh api repos/iZettle/"$PROJECT_REPONAME"/issues | jq -r "[ .[] | select( .name | contains(\"$LAST_ISSUE\")) | .[].tag_name")
+    current_issue=$(gh api repos/brajagopal-zettle/"$PROJECT_REPONAME"/issues | jq -r "[ .[] | select( .name | contains(\"$LAST_ISSUE\")) | .[].tag_name")
 
     # Delete all the draft releases
     if [[ -n $current_issue ]]; then
