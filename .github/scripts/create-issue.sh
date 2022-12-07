@@ -1,6 +1,5 @@
 #!/bin/bash
 
-export MAIN_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')
 export RELEASE_TAG_PREFIX="release"
 export RELEASE_TITLE_PREFIX="[deploy] Release"
 export LAST_ISSUE="[Release]"
@@ -25,9 +24,8 @@ EOM
 # Get the latest from default branch
 # ----------------------------------
 getLatest() {
-    git checkout "$MAIN_BRANCH"
-    git pull origin "$MAIN_BRANCH"
-    git fetch
+    git checkout "$MAIN_BRANCH" remotes/origin/"$MAIN_BRANCH"
+    git pull --rebase origin "$MAIN_BRANCH"
 }
 
 # Constructs the changelog. These are all commits from the latest release
@@ -48,7 +46,7 @@ getChangeLogSinceLatestRelease() {
                 --no-merges \
                 --author-date-order \
                 --date=format:'%Y-%m-%d:%H:%M:%S' \
-                "$latest_release_tag".."HEAD" | \
+                "$last_release_hash".."$(git rev-parse HEAD)" | \
                 sort -k2,1 --stable)
     echo "$changelog"
   fi
