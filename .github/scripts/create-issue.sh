@@ -103,7 +103,7 @@ createIssue() {
 # Main entry point
 # ----------------
 # validate
-getLatest
+#getLatest
 set -x
 changelog=$(getChangeLogSinceLatestRelease)
 createIssue "$changelog"
